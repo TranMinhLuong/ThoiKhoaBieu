@@ -53,11 +53,16 @@ module.exports = {
                 var sqlw = "SELECT * FROM `mon_hoc` ORDER BY `tong_tuan` ASC;"
                 connection.query(sqlw, (err, week)=>{
                     if (err) throw err;
-                    res.render('page/searchCalendar', {
+                    var sqld = "select * from nam_hoc where nam_hoc.hoc_ky in (select nam_hoc.hoc_ky from nam_hoc where nam_hoc.bat_daunh <= CURDATE() and nam_hoc.ket_thucnh >= CURDATE())";
+                    connection.query(sqld, (err, d)=>{
+                        if(err) throw err;
+                        res.render('page/searchCalendar', {
                             title: "Tìm kiếm Lịch Học",
                             lop: lop,
                             term: nam_hoc,
                             toWeek: week[0].tong_tuan,
+                            date: d[0].bat_daunh
+                        })
                     })
                 })
             })

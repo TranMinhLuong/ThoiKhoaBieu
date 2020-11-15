@@ -35,7 +35,7 @@
 <% 
 var b;
  function dateWeek(i) {
-    var now = new Date(b);
+    var now = new Date(date);
     now.setDate(now.getDate() - now.getDay() + 1 + i*7);
     var ngay = (Number(now.getDate()) <= 9) ? "0" + now.getDate() : now.getDate();
     var thang = (Number(now.getMonth() + 1) <= 9) ? now.getMonth() + 1 : now.getMonth() + 1;
