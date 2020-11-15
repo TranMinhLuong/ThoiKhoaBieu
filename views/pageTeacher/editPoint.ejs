@@ -1,0 +1,82 @@
+<script>
+    $(document).ready(function () {
+        $("input[type='number']").click(function () {
+            $(this).val("");
+        })
+    })
+</script>
+<div class="container-fluid">
+    <table class="table table-striped table-bordered table-condensed mt-5" id="myTable">
+        <thead>
+            <tr align="center">
+                <th>STT</th>
+                <th>Mã Sinh Viên</th>
+                <th>Tên</th>
+                <th>Điểm Chuyên Cần</th>
+                <th>Điểm Giữa Kỳ</th>
+                <th>Điểm Cuối Kỳ</th>
+                <th>Điểm Trung Bình</th>
+                <th>Chức Năng</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% list.forEach(function(student,index) { %>
+            <tr align="center">
+                <td><%- index+1 %></td>
+                <td><%= student.ma_sinh_vien %></td>
+                <td><%- student.ten %></td>
+                <td><%= student.diem_cc %></td>
+                <td><%= student.diem_gk %></td>
+                <td><%= student.diem_ck %></td>
+                <td><%= student.diem_tb %></td>
+                <td>
+                    <a href="javascript:void(0);" data-toggle="modal" data-target="#exampleModal<%- student.ma_diem %>"
+                        class="btn btn-warning text-light">
+                        Sửa Điểm
+                    </a>
+                </td>
+            </tr>
+            <div class="modal fade" id="exampleModal<%- student.ma_diem %>" tabindex="-1" role="dialog"
+				aria-labelledby="exampleModalLabel" aria-hidden="true">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title" id="exampleModalLabel">Chỉnh Sửa Điểm</h5>
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<form class="p-2" action="/home/point/edit" method="POST">
+							<div class="modal-body">
+								<div class="form-group">
+									<label class="font-weight-bold">Mã Sinh Viên : <%= student.ma_sinh_vien%></label>
+								</div>
+								<div class="form-group">
+									<label class="font-weight-bold">Tên : <%= student.ten %></label>
+								</div>
+                                <div class="form-group">
+									<label class="font-weight-bold">Điểm Chuyển Cần </label>
+                                    <input type="number" step="0.1" class="form-control" name="cc" value="<%= student.diem_cc %>" />
+								</div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Điểm Giữa Kỳ</label>
+									<input type="number" step="0.01" class="form-control" name="gk" value="<%= student.diem_gk %>" />
+								</div>
+                                <div class="form-group">
+									<label class="font-weight-bold">Điểm Cuối Kỳ</label>
+                                    <input type="number" step="0.01" class="form-control" name="ck" value="<%= student.diem_ck %>" />
+                                    <input type="hidden" class="form-control" name="path" value="" />
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button type="submit" value="<%- student.ma_diem %>" class="btn btn-success w-25"
+									name="edit">Lưu</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+            <% }); %>
+        </tbody>
+    </table>
+</div>

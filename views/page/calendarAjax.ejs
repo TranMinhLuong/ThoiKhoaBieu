@@ -1,0 +1,99 @@
+<% 
+  var mangThu = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+  var mangTiet = [1, 2, 3, 4, 5, 6];
+
+  function getThu(i) {
+    var now = new Date();
+    now.setDate(now.getDate() - now.getDay() + i +1);
+    var ngay = (Number(now.getDate()) <= 9) ? "0" + now.getDate() : now.getDate();
+    var thang = (Number(now.getMonth() + 1) <= 9) ? "0" + now.getMonth() + 1 : now.getMonth() + 1;
+    var x = `<br> (${ngay}/${thang}/${now.getFullYear()})`;
+    const date = (mangThu[i] != "CN") ? "Thứ "+ mangThu[i].substring(1)+x : "Chủ Nhật"+x;
+    return date;
+  }
+
+  function getRowPan(times, tiet) {
+    let rowPan = 0;
+    for (let time of times) {
+      let start = time.tiet_hoc.substring(0,1);
+      const end = time.tiet_hoc.substring(3,4);
+      if (tiet == start) rowPan = time.tiet_hoc.substring(3,4) - time.tiet_hoc.substring(0,1) + 1;;
+    }
+    return rowPan;
+  }
+
+  function getMonHocTheoTiet(times, tiet) {
+    for (let time of times) {
+      let start = time.tiet_hoc.substring(0,1);
+      const end = time.tiet_hoc.substring(3,4);
+      if (tiet == start) return time;
+    }
+    return null;
+  }
+
+  // 0 thêm td với dữ liệu rỗng
+  // 1 thêm td môn học, td lớp với rowpan
+  // 2 bỏ qua, vì đã có rowpan
+  function getTrangThaiCot(times, tiet) {
+    let result = 0;
+    for (let time of times) {
+      let start = time.tiet_hoc.substring(0,1);
+      const end = time.tiet_hoc.substring(3,4);
+      if (tiet == start) result = 1;
+      else if (tiet > start && tiet <= end) result = 2;
+    }
+    return result;
+  }
+%>
+
+
+<table class="table table-bordered table-condensed mt-5" id="myTable">
+    <thead>
+        <tr align="center" >
+            <th rowspan="2" style="vertical-align: middle;">Thứ</th>
+            <th rowspan="2" style="vertical-align: middle;">Tiết</th>
+            <th colspan="4"><%= lop.ten_lop %></th>
+        </tr>
+        <tr align="center" >
+            <th colspan="2">Sáng</th>
+            <th colspan="2">Chiều</th>
+        </tr>
+        <tr align="center">
+            <td></td>
+            <td></td>
+            <td>Môn học - Giảng viên</td>
+            <td>Phòng</td>
+            <td>Môn học - Giảng viên</td>
+            <td>Phòng</td>
+        </tr>
+    </thead>
+    <tbody>
+        <% mangThu.forEach(function(thu, i) { %>
+           <% mangTiet.forEach(function(tiet) { %>
+                <tr align="center">
+                   <% if (tiet == 1) { %>
+                        <th rowspan="6" style="vertical-align: middle;height: 1px"> <%- getThu(i)%></th>
+                    <%}%>
+                    <td><%- tiet%></td>
+                    <% if (getTrangThaiCot(calender[i][0], tiet) == 0) {%>
+                        <td></td>
+                        <td></td>
+                    <%}%>
+                    <% if(getTrangThaiCot(calender[i][0], tiet) == 1) { var a = Math.floor(Math.random() * 900000) + 100000;%>
+                        <td class="text-light" style="background-color: #<%- a%> " rowspan="<%=getRowPan(calender[i][0], tiet)%>"><%- getMonHocTheoTiet(calender[i][0], tiet).ten_mon_hoc %><br><%- getMonHocTheoTiet(calender[i][0], tiet).so_tiet +" tiết" %><br><%- getMonHocTheoTiet(calender[i][0], tiet).ten %></td>
+                        <td class="text-light" style="background-color: #<%- a%> " rowspan="<%=getRowPan(calender[i][0], tiet)%>"><%- getMonHocTheoTiet(calender[i][0], tiet).ten_phong %></td>
+                    <%}%>
+
+                    <% if (getTrangThaiCot(calender[i][1], tiet) == 0) {%>
+                        <td></td>
+                        <td></td>
+                    <%}%>
+                    <% if (getTrangThaiCot(calender[i][1], tiet) == 1) { var a = Math.floor(Math.random() * 900000) + 100000;%>
+                        <td class="text-light" style="background-color: #<%- a%> " rowspan="<%=getRowPan(calender[i][1], tiet)%>"><%- getMonHocTheoTiet(calender[i][1], tiet).ten_mon_hoc%><br><%- getMonHocTheoTiet(calender[i][1], tiet).so_tiet +" tiết" %><br><%- getMonHocTheoTiet(calender[i][1], tiet).ten %></td>
+                        <td class="text-light" style="background-color: #<%- a%> " rowspan="<%=getRowPan(calender[i][1], tiet)%>"><%- getMonHocTheoTiet(calender[i][1], tiet).ten_phong%></td>
+                    <%}%>
+                </tr>
+            <% }) %>
+        <% }) %>
+   </tbody>
+</table>

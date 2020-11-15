@@ -1,0 +1,281 @@
+<script>
+    $(document).ready(function () {
+        var liststudent = [];
+        var ma_mon_hoc = $("#addSV").attr("ma-mon-hoc");
+        $("#myInput").on("keyup", function () {
+            var search = $(this).val().toLowerCase();
+            $("#myTable tbody tr").filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(search) > -1)
+            });
+        })
+        $("#search").on("keyup", function () {
+            var search = $(this).val().toLowerCase();
+            $("#tableSV tbody tr").filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(search) > -1)
+            });
+        })
+        $("button[name='delete']").click(function () {
+            var id = $(this).val();
+            var msv = $(this).attr("msv");
+            $.get(url + "admin/delete/ct_lop_hp/id/" + id, function (data) {
+                if (data == true) {
+                    var x = "ma_sinh_vien='"+msv+"' AND ma_mon_hoc"
+                    $.get(url + "admin/delete/diem_hp/"+x+"/" + ma_mon_hoc, function (data) {
+                        console.log(data)
+                        if (data == true) {
+                            $("#myTable #" + id).fadeTo(500, 0, function () {
+                                $(this).remove();
+                            });
+                        }
+                    });
+                }
+            });
+        });
+
+        $("#addSV").click(function () {
+            $.get(url + "admin/modules/addsv/" + ma_mon_hoc, function (data) {
+                var s = "";
+                data.forEach(function (student, index) {
+                    if (liststudent.length > 0) {
+                        if (liststudent.indexOf(student.msv) != -1) {
+                            s += "<tr align='center' id='" + student.msv + "'>" +
+                                "<td>" + (index + 1) + "</td>" +
+                                "<td>" + student.msv + "</td>" +
+                                "<td>" + student.ten + "</td>" +
+                                "<td>" + student.ten_lop + "</td>" +
+                                "<td><button type='button' class='btn btn-danger' name='addSV' value='" +
+                                student.msv +
+                                "'>Remove</button></td></tr>";
+                        } else {
+                            s += "<tr align='center' id='" + student.msv + "'>" +
+                                "<td>" + (index + 1) + "</td>" +
+                                "<td>" + student.msv + "</td>" +
+                                "<td>" + student.ten + "</td>" +
+                                "<td>" + student.ten_lop + "</td>" +
+                                "<td><button type='button' class='btn btn-primary' name='addSV' value='" +
+                                student.msv +
+                                "'>Add</button></td></tr>";
+                        }
+                    } else {
+                        s += "<tr align='center' id='" + student.msv + "'>" +
+                            "<td>" + (index + 1) + "</td>" +
+                            "<td>" + student.msv + "</td>" +
+                            "<td>" + student.ten + "</td>" +
+                            "<td>" + student.ten_lop + "</td>" +
+                            "<td><button type='button' class='btn btn-primary' name='addSV' value='" +
+                            student.msv +
+                            "'>Add</button></td></tr>";
+                    }
+                })
+                $("#tableSV tbody").html(s);
+            });
+        });
+
+        $(document).on("click", "button[name='addSV']", function () {
+            var msv = $(this).val();
+            var text = $(this).text();
+            switch (text) {
+                case "Remove":
+                    $(this).text("Add");
+                    $(this).removeClass("btn-danger");
+                    $(this).addClass("btn-primary");
+                    var n = liststudent.indexOf(msv);
+                    liststudent.splice(n, 1);
+                    break;
+                case "Add":
+                    $(this).text("Remove");
+                    $(this).removeClass("btn-primary");
+                    $(this).addClass("btn-danger");
+                    liststudent.push(msv);
+                    break;
+            }
+            $(".sl").html(liststudent.length);
+            console.log(liststudent);
+        });
+
+        $("button[name='saveSV']").click(function () {
+            var lop = $("#addSV").attr("ma-lop-hp");
+            $.post(url + "admin/modules/addSV", {
+                ma_lop_hp: lop,
+                msv: liststudent.toString(),
+                mmh: ma_mon_hoc
+            }, function (data) {
+                if (data == true) {
+                    location.href = window.location.href;
+                }
+                console.log(data);
+            })
+        });
+        var mlhp = ""
+        $(".lop_hp").change(function () {
+            mlhp = $(this).val();
+        })
+        $("button[name='id']").click(function () {
+            var id = $(this).val();
+            $.post(url + "admin/modules/editSV", {
+                id: id,
+                ma_lop_hp: mlhp
+            }, function (data) {
+                if (data == true) {
+                    location.href = window.location.href;
+                }
+            })
+        })
+    });
+</script>
+
+<div class="container-fluid">
+    <h3 class="text-center">DANH SÁCH SINH VIÊN LỚP HỌC PHẦN <%= lop_hp[0].ten_lop_hp %></h3>
+    <div class="row">
+        <div class="col-6 row">
+            <label for="myInput" class="col-sm-2 col-form-label">Tìm Kiếm</label>
+            <div class="col-10">
+                <input type="text" class="form-control" id="myInput">
+            </div>
+        </div>
+        <div class="col-6 text-right">
+            <a href="#" id="addSV" ma-lop-hp="<%= lop_hp[0].ma_lop_hp %>" ma-mon-hoc="<%= lop_hp[0].ma_mon_hoc %>"
+                class="rounded rounded-circle btn btn-success text-light pl-lg-2 pr-lg-2 pt-1 pb-1" data-toggle="modal"
+                data-target="#add"><i class="fas fa-plus"></i>
+            </a>
+        </div>
+    </div>
+    <table class="table table-striped table-bordered table-condensed mt-5" id="myTable">
+        <thead>
+            <tr align="center">
+                <th>STT</th>
+                <th>Mã Sinh Viên</th>
+                <th>Họ & Tên</th>
+                <th>Lớp</th>
+                <th>Chức Năng</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% liststudent.forEach(function(student,index) { %>
+            <tr align="center" id="<%- student.id %>">
+                <td><%- index+1 %></td>
+                <td><%= student.ma_sinh_vien %></td>
+                <td><%- student.ten %></td>
+                <td><%- student.ten_lop %></td>
+                <td>
+                    <a id="editlhp" href="javascript:void(0);" data-toggle="modal"
+                        data-target="#exampleModal<%- student.id %>" class="btn btn-warning text-light">
+                        Sửa
+                    </a>
+
+                    <a class="btn btn-danger text-light" data-toggle="modal"
+                        data-target="#Modal<%- student.id %>">Xóa</a>
+                </td>
+            </tr>
+            <div class="modal fade" id="Modal<%- student.id %>" tabindex="-1" role="dialog"
+                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Xóa Sinh Viên</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            Xóa Sinh Viên <%- student.ten %>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                            <button type="button" msv='<%= student.ma_sinh_vien %>' name="delete" data-dismiss="modal" value="<%- student.id %>"
+                                class="btn btn-primary">Xóa</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="exampleModal<%- student.id %>" tabindex="-1" role="dialog"
+                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Chỉnh Sửa Lớp Học Phần</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <form class="p-2" method="POST">
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label class="font-weight-bold row ml-1"><span class="col-4">MÃ SINH VIÊN :</span>
+                                        <%= student.ma_sinh_vien %></label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold row ml-1"><span class="col-4">HỌ & TÊN :</span>
+                                        <%- student.ten %></label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold row ml-1"><span class="col-4">LỚP :</span>
+                                        <%- student.ten_lop %></label>
+                                </div>
+                                <div class="form-group ml-3 mr-3">
+                                    <label class="font-weight-bold ">Lớp Học Phần</label>
+                                    <select class="form-control lop_hp">
+                                        <% list_lhp.forEach(function (lhp, index) { %>
+                                        <option value="<%= lhp.ma_lop_hp %>"
+                                            <% if (student.ma_lop_hp == lhp.ma_lop_hp){ %>selected <% } %>>
+                                            <%= lhp.ten_lop_hp %></option>
+                                        <% }) %>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" value="<%- student.id %>" class="btn btn-success w-25"
+                                    name="id">Lưu</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <% }); %>
+        </tbody>
+    </table>
+</div>
+<div class="modal fade" id="add" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Thêm Sinh Viên</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="container modal-body">
+                <div class="row">
+                    <div class="col-6 row">
+                        <label for="search" class="col-sm-4 col-form-label">Tìm Kiếm</label>
+                        <div class="col-8">
+                            <input type="text" class="form-control" id="search">
+                        </div>
+                    </div>
+                    <div class="col-6 text-right ">
+                        <div class="form-group mt-3">
+                            <h4 class="d-inline">Số Lương Sinh Viên Đã Thêm:</h4>
+                            <h4 class="sl d-inline text-success ml-2">0</h4>
+                        </div>
+                    </div>
+                </div>
+                <table class="table table-striped table-bordered table-condensed mt-5" id="tableSV">
+                    <thead>
+                        <tr align="center">
+                            <th>STT</th>
+                            <th>Mã Sinh Viên</th>
+                            <th>Tên</th>
+                            <th>Lớp</th>
+                            <th>Chức Năng</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-dismiss="modal" name="saveSV">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>

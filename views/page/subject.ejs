@@ -1,0 +1,351 @@
+
+<script>
+    $(document).ready(function () {
+        $("#myInput").on("keyup", function () {
+            var search = $(this).val().toLowerCase();
+            $("#myTable tbody tr").filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(search) > -1)
+            });
+        })
+        $("button[name='delete']").click(function () {
+            var id = $(this).val();
+            $.get(url + "admin/delete/mon_hoc/id/" + id, function (data) {
+                console.log(data)
+                if (data == true) {
+                    $("#myTable #" + id).fadeTo(500, 0, function () {
+                        $(this).remove();
+                    });
+                }
+            });
+        });
+        $("button[name='export']").click(function(){
+            var table = $(this).prev('#myTable');
+            var preserveColors = (table.hasClass('table2excel_with_colors') ? true : false);
+            $("#myTable").table2excel({
+                exclude: "noExl",
+                name: "abc",
+                filename: "Môn Học",
+                exclude_img: true,
+				exclude_links: true,
+			    exclude_inputs: true,
+				preserveColors: preserveColors
+            });
+        });
+    });
+</script>
+<style>
+ @media only screen and (max-width: 760px),
+(min-device-width: 768px) and (max-device-width: 1024px)  {
+
+	/* Force table to not be like tables anymore */
+	table, thead, tbody, th, td, tr { 
+		display: block; 
+	}
+	
+	/* Hide table headers (but not display: none;, for accessibility) */
+	thead tr { 
+		position: absolute;
+		top: -9999px;
+		left: -9999px;
+	}
+	
+	tr { border: 1px solid #ccc; }
+	
+	td { 
+		/* Behave  like a "row" */
+		position: relative;
+        text-align: justify;
+	}
+
+    p {
+        text-align: end;
+    }
+	
+	td:before { 
+		/* Now like a table header */
+		position: absolute;
+		/* Top/left values mimic padding */
+		top: 13px;
+		left: 6px;
+		width: 15%; 
+		padding-right: 5px; 
+		white-space: nowrap;
+	}
+	
+	/*
+	Label the data
+	*/
+	td:nth-of-type(1):before { content: "STT"; }
+	td:nth-of-type(2):before { content: "Mã Môn Học"; }
+	td:nth-of-type(3):before { content: "Học Kỳ"; }
+    td:nth-of-type(4):before { content: "Tên Môn Học"; }
+	td:nth-of-type(5):before { content: "TGBD"; }
+	td:nth-of-type(6):before { content: "TGKT"; }
+	td:nth-of-type(7):before { content: "Tổng số tiết"; }
+	td:nth-of-type(8):before { content: "Chức Năng"; }
+}
+    body tr td p{
+        font-size: 1rem;
+    }
+</style>
+<div class="container-fluid">
+    <h3 class="text-center">DANH SÁCH MÔN HỌC</h3>
+    <div class="row">
+        <div class="col-6 row">
+            <label for="myInput" class="col-sm-2 col-form-label">Tìm Kiếm</label>
+            <div class="col-10">
+                <input type="text" class="form-control" id="myInput">
+            </div>
+        </div>
+        <div class="col-6 text-right">
+            <a href="#" class="rounded rounded-circle btn btn-success text-light pl-lg-2 pr-lg-2 pt-1 pb-1"
+                data-toggle="modal" data-target="#add"><i class="fas fa-plus"></i>
+            </a>
+        </div>
+    </div> 
+    <div class="row">
+        <div class="col-12 text-center mr-auto ml-auto mt-5">
+            <button name="export" class="btn btn-primary">Download Export Excel</button>
+        </div>
+    </div>
+    <table class="table table-striped table-bordered table-condensed mt-5" id="myTable">
+        <thead>
+            <tr align="center">
+                <th>STT</th>
+                <th>Mã Môn Học</th>
+                <th>Học Kỳ</th>
+                <th>Tên Môn học</th>
+                <th>Thời Gian Bắt Đầu</th>
+                <th>Thời Gian Kết Thúc</th>
+                <th>Tổng Tuần</th>
+                <th>Tổng số tiết </th>
+                <th>Chức Năng</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% subjects.forEach(function(subject,index) { %>
+            <tr align="center" id="<%- subject.id %>">
+                <% var date = new Date(subject.bat_dau)
+                var bat_dau = ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())) + '/' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + date.getFullYear();
+                var bd =  date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' +((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()));
+                %>
+                <% var date = new Date(subject.ket_thuc)
+                var ket_thuc = ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())) + '/' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + date.getFullYear();
+                var kt =  date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' +((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()));
+                %>
+                <td><p><%- index+1 %></p></td>
+                <td><p><%= subject.ma_mon_hoc %></p></td>
+                <td><p><%= subject.hoc_ky %></p></td>
+                <td><p><a href="javascript:void(0);"><%- subject.ten_mon_hoc %></a></p></td>
+                <td><p><%- bat_dau %></p></td>
+                <td><p><%- ket_thuc %></p></td>
+                <td><p><%- subject.tong_tuan %></p></td>
+                <td><p><%- subject.so_tiet %></p></td>
+                <td><p>
+                    <a href="javascript:void(0);" data-toggle="modal" data-target="#exampleModal<%- subject.id %>"
+                        class="btn btn-warning text-light">
+                        Sửa
+                    </a>
+
+                    <a class="btn btn-danger text-light" data-toggle="modal"
+                        data-target="#Modal<%- subject.id %>">Xóa</a>
+                </p></td>
+            </tr>
+            <div class="modal fade" id="Modal<%- subject.id %>" tabindex="-1" role="dialog"
+                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Xóa Môn Học</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            Xóa Môn Học<%- subject.ten_mon_hoc %>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                            <button type="button" name="delete" data-dismiss="modal" value="<%- subject.id %>"
+                                class="btn btn-primary">Xóa</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="exampleModal<%- subject.id %>" tabindex="-1" role="dialog"
+                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Chỉnh Sửa Môn Học</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <form class="p-2" action="/admin/subject/update" method="POST">
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Mã Môn Học</label>
+                                    <input type="text" class="form-control" name="ma_mon_hoc"
+                                        value="<%= subject.ma_mon_hoc %>" />
+                                </div>
+                                <div class="form-group ">
+                                    <label class="font-weight-bold">Học Kỳ</label>
+                                    <select class="form-control" name="ma_hoc_ky" id="<%- subject.ma_hoc_ky %>">
+                                        <% nam_hoc.forEach(function(term) { %>
+                                        <option value="<%= term.ma_hoc_ky %>"
+                                            <%= (term.ma_hoc_ky==subject.ma_mon_hoc) ? "selected" : "" %>>
+                                            <%= term.hoc_ky %> </option>
+                                        <% }) %>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Tên Lớp</label>
+                                    <input type="text" class="form-control" name="ten_mon_hoc"
+                                        value="<%- subject.ten_mon_hoc %>" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Ngày Bắt Đầu</label>
+                                    <input type="date" class="form-control" name="bat_dau" value="<%- bd %>" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Ngày Kết Thúc</label>
+                                    <input type="date" class="form-control" name="ket_thuc" value="<%- kt %>" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Số Tiết</label>
+                                    <input type="text" class="form-control" name="so_tiet" value="<%- subject.so_tiet %>" />
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" value="<%- subject.id %>" class="btn btn-success w-25"
+                                    name="id">Lưu</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <% }); %>
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="add" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Thêm Môn Học</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form class="p-2" method="post" action="/admin/subject/add">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="font-weight-bold">Mã Môn Học</label>
+                        <input type="text" class="form-control" name="ma_mon_hoc" value="" />
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold">Tên Môn Học</label>
+                        <input type="text" class="form-control" name="ten_mon_hoc" value="" />
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold">Học Kỳ</label>
+                        <select class="form-control" name="ma_hoc_ky">
+                            <% nam_hoc.forEach(function(term) { %>
+                            <option value="<%= term.ma_hoc_ky %>"><%= term.hoc_ky %> </option>
+                            <% }) %>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold">Số Tiết</label>
+                        <input type="text" class="form-control" name="so_tiet" value="" />
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold">Ngày Bắt Đầu</label>
+                        <input type="date" class="form-control" name="bat_dau" id="date-start" required/>
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold">Ngày Kết Thúc</label>
+                        <input type="date" class="form-control" name="ket_thuc" id="date-over"  required/>
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold">Số Tuần</label>
+                        <input id="so_tuan" type="" class="form-control" placeholder="không nhập gì ở đây" name="tong_tuan" value="" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="submit" type="submit" class="btn btn-success w-25">Thêm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+            (function() {
+                $('#submit').on('click', function(){
+                  var date = new Date($('#date-start').val());
+                  var date1  = new Date($('#date-over').val());
+                  var sotuan = document.getElementById('so_tuan');
+
+                  day = date.getDate();
+                  day1 = date1.getDate();
+                  month = date.getMonth() + 1;
+                  month1 = date1.getMonth() + 1;
+                  year = date.getFullYear();
+                  year1 = date1.getFullYear();
+
+                  if(month1 == month && year1 == year) {
+                      var d = (day1 - day)/7;
+                  }
+                  else if(month1 > month && year1 == year) {
+                    if (month1 == 1 || month1 == 3 || month1 == 5 || month1 == 7 || month1 == 8 || month1 == 10 || month1 == 12) {
+                        //if ( month1 - month == 1) {
+                            var m = (month1 - month) * 30;
+                        //}
+                        // else{
+                        //  for (var i = 1; i >= (month1 - month); i++) {
+                        //      var m += (month1 - month) * 30;
+                        //  }
+                        // }
+                    }
+                    else if(month1 == 4 || month1 == 6 || month1 == 9 || month1 == 11){
+                        var m = (month1 - month) * 31;
+                    }else if(month == 2) {
+                        var m = (month1 - month) * 29;
+                    }
+
+                    var d = ((day1 + m) - day) / 7;
+                  }
+                  else if(year1 > year){
+                    if (month1 == 1 || month1 == 3 || month1 == 5 || month1 == 7 || month1 == 9 || month1 == 11) {
+                        var m = ((month1 + 12) - month) * 31;
+                    }
+                    else if(month1 == 4 || month1 == 6 || month1 == 8 || month1 == 10 || month1 == 12){
+                        var m = ((month1 + 12) - month) * 30;
+                    }else {
+                        var m = ((month1 + 12) - month) * 29;
+                    }
+
+                    var d = ((day1 + m) - day) / 7;
+                  }
+
+                  if(d < 1) {
+                    alert('Ngày Bạn nhập chưa đủ 1 tuần');
+                  }
+                 //  else if (Number.isNaN(d) == true) {
+                 //     alert('Ngày Bạn nhập Bị Dư');
+                    // document.write(Math.floor(d));
+                 //  }
+                  else {
+                    //alert(Math.floor(d)); 
+                    sotuan.value =  Math.floor(d);            
+                    //for (var i = 1; i <= d; i++) {
+                        //alert("tuần " + i);
+                    //}
+                  }
+
+                });
+            })();
+      </script>

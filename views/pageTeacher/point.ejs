@@ -1,0 +1,77 @@
+<style>
+ @media only screen and (max-width: 760px),
+(min-device-width: 768px) and (max-device-width: 1024px)  {
+
+	/* Force table to not be like tables anymore */
+	table, thead, tbody, th, td, tr { 
+		display: block; 
+	}
+	
+	/* Hide table headers (but not display: none;, for accessibility) */
+	thead tr { 
+		position: absolute;
+		top: -9999px;
+		left: -9999px;
+	}
+	
+	tr { border: 1px solid #ccc; }
+	
+	td { 
+		/* Behave  like a "row" */
+		position: relative;
+        text-align: justify;
+	}
+
+    p {
+        text-align: end;
+    }
+	
+	td:before { 
+		/* Now like a table header */
+		position: absolute;
+		/* Top/left values mimic padding */
+		top: 13px;
+		left: 6px;
+		width: 15%; 
+		padding-right: 5px; 
+		white-space: nowrap;
+	}
+	
+	/*
+	Label the data
+	*/
+	td:nth-of-type(1):before { content: "STT"; }
+	td:nth-of-type(2):before { content: "Mã Lớp HP"; }
+	td:nth-of-type(3):before { content: "Tên"; }
+    td:nth-of-type(4):before { content: "Môn Học"; }
+}
+    body tr td p{
+        font-size: 1rem;
+    }
+</style>
+<div class="container-fluid">
+    <h3 class="text-center">LỚP HỌC PHẦN</h3>
+    <div class="row">
+        
+    </div>
+    <table class="table table-striped table-bordered table-condensed mt-5" id="myTable">
+        <thead>
+            <tr align="center">
+                <th>STT</th>
+                <th>Mã Lớp Học Phần</th>
+                <th>Tên Lớp Học Phần</th>
+                <th>Môn Học</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% lop_hp.forEach(function(lop,index) { %>
+            <tr align="center">
+                <td><p><%- index+1 %></p></td>
+                <td><p><%= lop.ma_lop_hp %></p></td>
+                <td><p><a href="/home/point/<%= lop.ma_lop_hp %>"><%- lop.ten_lop_hp %></a></p></td>
+                <td><p><%= lop.ten_mon_hoc %></p></td>
+            </tr>
+            <% }); %>
+        </tbody>
+    </table>
+</div>

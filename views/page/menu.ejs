@@ -1,0 +1,53 @@
+ <div class="primary-nav h-100 ">
+   <nav role="navigation" class="menu h-100">
+     <div class="bg-light">
+       <div class="row">
+         <div class="col-9 align-center text-dark font-weight-bold" style="font-size: 2em">
+           <i class="fa fa-university mt-3 mb-3 mr-2 ml-4"></i> CDBD
+         </div>
+         <div class="col-3">
+           <span class="hamburger open-panel nav-toggle bg-light">
+             <span class="screen-reader-text">Menu</span>
+           </span>
+         </div>
+       </div>
+     </div>
+     <div class="overflow-container">
+       <div class="overflow-container">
+         <ul class="menu-dropdown">
+         <% if (user == 'admin') { %>
+           <li><a href="/admin">Home </a><span class="icon"><i class="fas fa-home"></i></span></li>
+
+           <li>
+             <a href="admin/account/">Tài Khoản</a><span class="icon"><i class="fas fa-user-alt"></i></span>
+           </li>
+
+           <li><a href="admin/class/">Danh Sách Lớp</a><span class="icon"><i class="fas fa-th-list"></i></span></li>
+
+           <li><a href="admin/student">Sinh Viên</a><span class="icon"><i class="fas fa-user-graduate"></i></span></li>
+           <li><a href="admin/teacher/">Giáo Viên</a><span class="icon"><i class="fas fa-user-tie"></i></span></li>
+           <li><a href="admin/subject/">Môn Học</a><span class="icon"><i class="fas fa-book"></i></span></li>
+           <li><a href="admin/modules/">Lớp Học Phần</a><span class="icon"><i class="fas fa-chalkboard-teacher"></i></span></li>
+           <li><a href="admin/calendar/">Lịch Học</a><span class="icon"><i class="fas fa-calendar"></i></span></li>
+           <li><a href="admin/term/">Học Kỳ</a><span class="icon"><i class="fas fa-calendar-alt"></i></span></li>
+           <li><a href="admin/search-calendar/">Tìm Kiếm Lịch Học</a><span class="icon"><i class="far fa-calendar-check"></i></span></li>
+           <% } else { %>
+              <li><a href="/">Home </a><span class="icon"><i class="fas fa-home"></i></span></li>
+              <li><a href="home/calendar/">Lịch Dạy</a><span class="icon"><i class="fas fa-calendar"></i></span></li>
+              <li><a href="home/module/">Lớp Học Phần</a><span class="icon"><i class="fa fa-table"></i></span></li>
+              <li><a href="home/register-calendar/">Đăng Ký Lịch</a><span class="icon"><i class="fas fa-calendar-plus"></i></span></li>
+           <% } %>
+         </ul>
+       </div>
+
+   </nav>
+ </div>
+ <script>
+   $(document).ready(function () {
+     $('.nav-toggle').click(function (e) {
+       e.preventDefault();
+       $("html").toggleClass("openNav");
+       $(".nav-toggle").toggleClass("active");
+     });
+   });
+ </script>

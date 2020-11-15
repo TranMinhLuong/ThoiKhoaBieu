@@ -1,0 +1,101 @@
+
+<style>
+ @media only screen and (max-width: 760px),
+(min-device-width: 768px) and (max-device-width: 1024px)  {
+
+    /* Force table to not be like tables anymore */
+    table, thead, tbody, th, td, tr { 
+        display: block; 
+    }
+    
+    /* Hide table headers (but not display: none;, for accessibility) */
+    thead tr { 
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+    
+    tr { border: 1px solid #ccc; }
+    
+    td { 
+        /* Behave  like a "row" */
+        position: relative;
+        text-align: justify;
+    }
+
+    p {
+        text-align: end;
+    }
+    
+    td:before { 
+        /* Now like a table header */
+        position: absolute;
+        /* Top/left values mimic padding */
+        top: 13px;
+        left: 6px;
+        width: 15%; 
+        padding-right: 5px; 
+        white-space: nowrap;
+    }
+    
+    /*
+    Label the data
+    */
+    td:nth-of-type(1):before { content: "STT"; }
+    td:nth-of-type(2):before { content: "Thời Gian"; }
+    td:nth-of-type(3):before { content: "Buổi Học"; }
+    td:nth-of-type(4):before { content: "Tiết Học"; }
+    td:nth-of-type(5):before { content: "Tên"; }
+    td:nth-of-type(6):before { content: "Phòng"; }
+    td:nth-of-type(7):before { content: "Giáo Viên"; }
+    td:nth-of-type(8):before { content: "Khoa"; }
+    td:nth-of-type(9):before { content: "Lớp"; }
+    td:nth-of-type(10):before { content: "Chức Năng"; }
+}
+    body tr td p{
+        font-size: 1rem;
+    }
+</style>
+
+<div class="container-fluid">
+    <h3 class="text-center">DANH SÁCH LỊCH HỌC</h3>
+    <div class="row">
+        <div class="col-6 row">
+            <label for="myInput" class="col-sm-2 col-form-label">Tìm Kiếm</label>
+            <div class="col-10">
+                <input type="text" class="form-control" id="myInput">
+            </div>
+        </div>
+    <table class="table table-striped table-bordered table-condensed mt-5" id="myTable">
+        <thead>
+            <tr align="center">
+                <th>STT</th>
+                <th>Thời Gian</th>
+                <th>Buổi Học</th>
+                <th>Tiết</th>
+                <th>Tên Lớp Học Phần</th>
+                <th>Phòng</th>
+                <th>Giáo Viên</th>
+                <th>Khoa</th>
+                <th>Lớp</th>
+                <th>Tuần Thứ</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% calender.forEach(function(calendar,index) { %>
+            <tr align="center" id="<%- calendar.ma_lich %>">
+                <td><p><%- index+1 %></p></td>
+                <td><p><%- calendar.tenGiCungDc %></p></td>
+                <td><p><%- calendar.buoi_hoc %></p></td>
+                <td><p><%- calendar.tiet_hoc %></p></td>
+                <td><p><%- calendar.ten_lop_hp %></p></td>
+                <td><p><%- calendar.ten_phong %></p></td>
+                <td><p><%- calendar.ten %></p></td>
+                <td><p><%- calendar.khoa %></p></td>
+                <td><p><%- calendar.ten_lop %></p></td>
+                <td><p><%- calendar.tuan_thu %></p></td>
+            </tr>
+            <% }); %>
+        </tbody>
+    </table>
+</div>

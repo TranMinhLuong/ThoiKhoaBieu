@@ -1,0 +1,117 @@
+<script>
+    $(document).ready(function () {
+        $("button[name='export']").click(function(){
+            var table = $(this).prev('#myTable');
+            var preserveColors = (table.hasClass('table2excel_with_colors') ? true : false);
+            $("#myTable").table2excel({
+                exclude: "noExl",
+                name: "abc",
+                filename: "Lịch Dạy",
+                exclude_img: true,
+				exclude_links: true,
+			    exclude_inputs: true,
+				preserveColors: preserveColors
+            });
+        });
+    })
+</script>
+<style>
+ @media only screen and (max-width: 760px),
+(min-device-width: 768px) and (max-device-width: 1024px)  {
+
+	/* Force table to not be like tables anymore */
+	table, thead, tbody, th, td, tr { 
+		display: block; 
+	}
+	
+	/* Hide table headers (but not display: none;, for accessibility) */
+	thead tr { 
+		position: absolute;
+		top: -9999px;
+		left: -9999px;
+	}
+	
+	tr { border: 1px solid #ccc; }
+	
+	td { 
+		/* Behave  like a "row" */
+		position: relative;
+        text-align: justify;
+	}
+
+    p {
+        text-align: end;
+    }
+	
+	td:before { 
+		/* Now like a table header */
+		position: absolute;
+		/* Top/left values mimic padding */
+		top: 13px;
+		left: 6px;
+		width: 15%; 
+		padding-right: 5px; 
+		white-space: nowrap;
+	}
+	
+	/*
+	Label the data
+	*/
+	td:nth-of-type(1):before { content: "STT"; }
+	td:nth-of-type(2):before { content: "Thời Gian"; }
+	td:nth-of-type(3):before { content: "Buổi Học"; }
+    td:nth-of-type(4):before { content: "Tên"; }
+	td:nth-of-type(5):before { content: "Số Tiết"; }
+	td:nth-of-type(6):before { content: "Đã Dạy"; }
+    td:nth-of-type(7):before { content: "Còn Lại"; }
+	td:nth-of-type(8):before { content: "Tiết Học"; }
+	td:nth-of-type(9):before { content: "Phòng"; }
+}
+    body tr td p{
+        font-size: 1rem;
+    }
+</style>
+<div class="container-fluid">
+    <h3 class="text-center">LỊCH DẠY</h3>
+    <div class="row">
+        <div class="col-12 text-center mr-auto ml-auto mt-5">
+            <button name="export" class="btn btn-primary">Download Export Excel</button>
+        </div>
+    </div>
+    <table class="table table-striped table-bordered table-condensed mt-5" id="myTable">
+        <thead>
+            <tr align="center">
+                <th>STT</th>
+                <th>Thời Gian</th>
+                <th>Buổi Học</th>
+                <th>Tên Lớp Học Phần</th>
+                <th>Số Tiết</th>
+                <th>Đã Dạy</th>
+                <th>Còn Lại</th>
+                <th>Tiết Học</th>
+                <th>Phòng</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% var bat_dau = ['7h30','8h30','9h30','10h30','11h30','13h','14h','15h','16h','17h']%>
+            <% var ket_thuc = ['8h20','9h20','10h20','11h20','12h20','13h50','14h50','15h50','16h50','17h50']%>
+            <% lich_day.forEach(function(calendar,index) { %>
+            <%
+            var bd = calendar.tiet_hoc.slice(0,1);
+            var kt = calendar.tiet_hoc.slice(3);
+            %>
+            <tr align="center" id="<%- calendar.ma_lich %>">
+                <td><p><%- index+1 %></p></td>
+                <td><p><%- calendar.tenGiCungDc %></p></td>
+                <td><p><%- calendar.buoi_hoc %></p></td>
+                <td><p><%- calendar.ten_lop_hp %></p></td>
+                <td><p><%- calendar.so_tiethp %></p></td>
+                <td><p><%- calendar.da_day %></p></td>
+                <td><p class="text-danger"><%- calendar.so_tiet_con_lai %></p></td>
+                <td><p><%- calendar.tiet_hoc %></p></td>
+                <td><p><%- calendar.ten_phong %></p></td>
+            </tr>
+            <% }); %>
+        </tbody>
+    </table>
+</div>

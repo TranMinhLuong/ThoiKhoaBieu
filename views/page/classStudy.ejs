@@ -1,0 +1,347 @@
+<script charset="UTF-8">
+    $(document).ready(function () {
+        $("#myInput").on("keyup", function () {
+            var search = $(this).val().toLowerCase();
+            $("#myTable tbody tr").filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(search) > -1)
+            });
+        });
+        // $.get(url + "admin/giao_vien/", function (data) {
+        //         var s = "";
+        //         data.forEach((teacher) => {
+        //             s = s + "<option value='" + teacher.mgv + "'>" + teacher
+        //                 .ten + "</option>";
+        //         });
+        //         $("select[name='mgv']").html(s);
+        //     });
+        $('a#edit').click(function(){
+            var id = $(this).attr( "idlp" );
+            $( "#tongsotiet"+id+", #lt"+id+", #th"+id ).blur(function() {
+                var tongsotiet = new Number($('#tongsotiet'+id).val());
+                var lt = new Number($('#lt'+id).val());
+                var th = new Number($('#th'+id).val());
+
+                if(lt != 0 && th != 0 && tongsotiet != 0  ) {
+                    var tong = lt + th;
+                    // alert(tong);
+                    if(tongsotiet < tong) {
+                        alert('Bạn đã nhập dư số buổi lý thuyết và thực hành');
+                        $('button#'+id).attr('disabled', true);
+                    }
+                    else if (tongsotiet > tong){
+                        alert('Bạn đã nhập thiếu số buổi lý thuyết và thực hành');
+                        $('button#'+id).attr('disabled', true);
+                    }
+                    else {
+                        alert('bạn đã nhập thành công!!');
+                        $(":submit").removeAttr("disabled");
+                    }
+                }
+            });
+        });
+        $("button[name='delete']").click(function () {
+            var idlhp = $(this).val();
+            $.get(url + "admin/delete/lop_hoc_phan/idlhp/" + idlhp, function (data) {
+                console.log(data)
+                if (data == true) {
+                    $("#myTable #" + idlhp).fadeTo(500, 0, function () {
+                        $(this).remove();
+                    });
+                }
+            });
+        });
+        $("button[name='export']").click(function(){
+            var table = $(this).prev('#myTable');
+            var preserveColors = (table.hasClass('table2excel_with_colors') ? true : false);
+            $("#myTable").table2excel({
+                exclude: "noExl",
+                name: "abc",
+                filename: "Lớp Học Phần",
+                exclude_img: true,
+				exclude_links: true,
+			    exclude_inputs: true,
+				preserveColors: preserveColors
+            });
+        });
+    });
+</script>
+<style>
+ @media only screen and (max-width: 760px),
+(min-device-width: 768px) and (max-device-width: 1024px)  {
+
+	/* Force table to not be like tables anymore */
+	table, thead, tbody, th, td, tr { 
+		display: block; 
+	}
+	
+	/* Hide table headers (but not display: none;, for accessibility) */
+	thead tr { 
+		position: absolute;
+		top: -9999px;
+		left: -9999px;
+	}
+	
+	tr { border: 1px solid #ccc; }
+	
+	td { 
+		/* Behave  like a "row" */
+		position: relative;
+        text-align: justify;
+	}
+
+    p {
+        text-align: end;
+    }
+	
+	td:before { 
+		/* Now like a table header */
+		position: absolute;
+		/* Top/left values mimic padding */
+		top: 13px;
+		left: 6px;
+		width: 15%; 
+		padding-right: 5px; 
+		white-space: nowrap;
+	}
+	
+	/*
+	Label the data
+	*/
+	td:nth-of-type(1):before { content: "STT"; }
+	td:nth-of-type(2):before { content: "Mã Lớp HP"; }
+	td:nth-of-type(3):before { content: "Tên"; }
+    td:nth-of-type(4):before { content: "Giáo Viên"; }
+	td:nth-of-type(5):before { content: "Môn Học"; }
+	td:nth-of-type(6):before { content: "ST"; }
+	td:nth-of-type(7):before { content: "SG"; }
+	td:nth-of-type(8):before { content: "STHP"; }
+	td:nth-of-type(9):before { content: "DD"; }
+	td:nth-of-type(10):before { content: "STCL"; }
+    td:nth-of-type(11):before { content: "CHức Năng"; }
+}
+    body tr td p{
+        font-size: 1rem;
+    }
+</style>
+
+<div class="container-fluid">
+    <h3 class="text-center">DANH SÁCH LỚP HỌC PHẦN</h3>
+    <div class="row">
+        <div class="col-6 row">
+            <label for="myInput" class="col-sm-2 col-form-label">Tìm Kiếm</label>
+            <div class="col-10">
+                <input type="text" class="form-control" id="myInput">
+            </div>
+        </div>
+        <div class="col-6 text-right">
+            <a href="#" id="addlhp" class="rounded rounded-circle btn btn-success text-light pl-lg-2 pr-lg-2 pt-1 pb-1"
+                data-toggle="modal" data-target="#add"><i class="fas fa-plus"></i>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 text-center mr-auto ml-auto mt-5">
+            <button name="export" class="btn btn-primary">Download Export Excel</button>
+        </div>
+    </div>
+    <table class="table table-striped table-bordered table-condensed mt-5" id="myTable">
+        <thead>
+            <tr align="center">
+                <th>STT</th>
+                <th>Mã Lớp Học Phần</th>
+                <th>Tên Lớp Học Phần</th>
+                <th>Giáo Viên</th>
+                <th>Tên Môn Học</th>
+                <th>ST</th>
+                <th>STLT</th>
+                <th>STTH</th>
+                <th>STHP</th>
+                <th>DD</th>
+                <th>STCL</th>
+                <th>Chức Năng</th>
+            </tr>
+        </thead>
+        <tbody>
+            <%classStudies.forEach(function(classStudy,index) { %>
+            <tr align="center" id="<%- classStudy.idlhp %>">
+                <td><p><%- index+1 %></p></td>
+                <td><p><%= classStudy.ma_lop_hp %></p></td>
+                <td><p><a href="/admin/modules/<%= classStudy.ma_lop_hp %>"><%- classStudy.ten_lop_hp %></a></p></td>
+                <td><p><%- classStudy.ten %></p></td>
+                <td><p><%- classStudy.ten_mon_hoc %></p></td>
+                <td><p><%- classStudy.so_tin %></p></td>
+                <td><p><%- classStudy.so_tiet_ly_thuyet %></p></td>
+                <td><p><%- classStudy.so_tiet_thuc_hanh %></p></td>
+                <td><p><%- classStudy.so_tiethp %></p></td>
+                <td><p><%- classStudy.da_day %></p></td>
+                <td><p class="text-danger"><%- classStudy.so_tiet_con_lai %></p></td>
+                <td><p>
+                    <a id="edit" href="javascript:void(0);" data-toggle="modal"
+                        data-target="#exampleModal<%- classStudy.idlhp %>" class="btn btn-warning text-light" idlp="<%- classStudy.idlhp %>">
+                        Sửa
+                    </a>
+
+                    <a class="btn btn-danger text-light" data-toggle="modal"
+                        data-target="#Modal<%- classStudy.idlhp %>">Xóa</a>
+                </p></td>
+            </tr>
+            <div class="modal fade" id="Modal<%- classStudy.idlhp %>" tabindex="-1" role="dialog"
+                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Xóa Lớp Học Phần</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            Xóa Lớp Học Phần <%- classStudy.ten_lop_hp %>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                            <button type="button" name="delete" data-dismiss="modal" value="<%- classStudy.idlhp %>"
+                                class="btn btn-primary">Xóa</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="exampleModal<%- classStudy.idlhp %>" tabindex="-1" role="dialog"
+                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Chỉnh Sửa Lớp Học Phần</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <form class="p-2" action="/admin/modules/update" method="POST">
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Mã Lớp Học Phần</label>
+                                    <input type="text" class="form-control" name="ma_lop_hp"
+                                        value="<%= classStudy.ma_lop_hp %>" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Tên Lớp Học Phần</label>
+                                    <input type="text" class="form-control" name="ten_lop_hp"
+                                        value="<%- classStudy.ten_lop_hp %>" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Môn Học</label>
+                                    <select class="form-control" name="ma_mon_hoc">
+                                        <% subjects.forEach(function(subject) { %>
+                                        <option value="<%= subject.ma_mon_hoc %>"
+                                            <% if (subject.ten_mon_hoc == classStudy.ten_mon_hoc) { %> selected <% } %>>
+                                            <%= subject.ten_mon_hoc %>
+                                        </option>
+                                        <% }) %>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Môn Học</label>
+                                    <select class="form-control" name="mgv">
+                                        <% gv.forEach(function(gv) { %>
+                                        <option value="<%= gv.mgv %>"
+                                            <% if (gv.mgv == classStudy.mgv) { %> selected <% } %>>
+                                            <%= gv.ten %>
+                                        </option>
+                                        <% }) %>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Số Tín</label>
+                                    <input type="text" class="form-control" name="so_tin" value="<%- classStudy.so_tin %>" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Số Tiết Học Phần</label>
+                                    <input id="tongsotiet<%- classStudy.idlhp %>" type="number" class="form-control" name="so_tiethp" value="<%- classStudy.so_tiethp %>" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Số Tiết Lý Thuyết</label>
+                                    <input id="lt<%- classStudy.idlhp %>" type="number" class="form-control" name="so_tiet_ly_thuyet" value="<%- classStudy.so_tiet_ly_thuyet %>" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Số Tiết Thực Hành</label>
+                                    <input id="th<%- classStudy.idlhp %>" type="number" class="form-control" name="so_tiet_thuc_hanh" value="<%- classStudy.so_tiet_thuc_hanh %>" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Đã Dạy</label>
+                                    <input type="text" class="form-control" name="da_day" value="<%- classStudy.da_day %>" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Số Tiết Còn Lại</label>
+                                    <input type="text" class="form-control " name="so_tiet_con_lai" value="<%- classStudy.so_tiet_con_lai %>" />
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button id="<%- classStudy.idlhp %>" type="submit" value="<%- classStudy.idlhp %>" class="btn btn-success w-25"
+                                    name="idlhp">Lưu</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <% }); %>
+        </tbody>
+    </table>
+</div>
+<div class="modal fade" id="add" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Thêm Môn Học</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form class="p-2" method="post" action="/admin/modules/add">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="font-weight-bold">Mã Lớp Học Phần</label>
+                        <input type="text" class="form-control" name="ma_lop_hp" value="" />
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold">Tên Lớp Học Phần</label>
+                        <input type="text" class="form-control" name="ten_lop_hp" value="" />
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold">Môn Học</label>
+                        <select class="form-control" id="mon_hoc" name="mon_hoc">
+                            <% subjects.forEach(function(subject) { %>
+                            <option value="<%= subject.ma_mon_hoc %>">
+                                <%= subject.ten_mon_hoc %>
+                            </option>
+                            <% }) %>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold">Lớp</label>
+                        <select class="form-control" id="lop" name="lop">
+                            <% lop.forEach(function(lop) { %>
+                            <option value="<%= lop.id %>">
+                                <%= lop.ten_lop %>
+                            </option>
+                            <% }) %>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold">Giáo Viên</label>
+                        <select class="form-control" id="giao_vien" name="giao_vien">
+                            <% gv.forEach(function(gv) { %>
+                            <option value="<%= gv.mgv %>">
+                                <%= gv.ten %>
+                            </option>
+                            <% }) %>
+                        </select>
+                    </div>
+                    
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success w-25">Thêm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

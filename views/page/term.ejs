@@ -1,0 +1,244 @@
+<script>
+    $(document).ready(function () {
+        $("#myInput").on("keyup", function () {
+            var search = $(this).val().toLowerCase();
+            $("#myTable tbody tr").filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(search) > -1)
+            });
+        })
+        $("button[name='delete']").click(function () {
+            var id = $(this).val();
+            $.get(url + "admin/delete/nam_hoc/idhk/" + id, function (data) {
+                console.log(data)
+                if (data == true) {
+                    $("#myTable #" + id).fadeTo(500, 0, function () {
+                        $(this).remove();
+                    });
+                }
+            });
+        });
+        $("button[name='export']").click(function(){
+            var table = $(this).prev('#myTable');
+            var preserveColors = (table.hasClass('table2excel_with_colors') ? true : false);
+            $("#myTable").table2excel({
+                exclude: "noExl",
+                name: "abc",
+                filename: "Học Kỳ",
+                exclude_img: true,
+				exclude_links: true,
+			    exclude_inputs: true,
+				preserveColors: preserveColors
+            });
+        });
+    });
+</script>
+<style>
+ @media only screen and (max-width: 760px),
+(min-device-width: 768px) and (max-device-width: 1024px)  {
+
+	/* Force table to not be like tables anymore */
+	table, thead, tbody, th, td, tr { 
+		display: block; 
+	}
+	
+	/* Hide table headers (but not display: none;, for accessibility) */
+	thead tr { 
+		position: absolute;
+		top: -9999px;
+		left: -9999px;
+	}
+	
+	tr { border: 1px solid #ccc; }
+	
+	td { 
+		/* Behave  like a "row" */
+		position: relative;
+        text-align: justify;
+	}
+
+    p {
+        text-align: end;
+    }
+	
+	td:before { 
+		/* Now like a table header */
+		position: absolute;
+		/* Top/left values mimic padding */
+		top: 13px;
+		left: 6px;
+		width: 15%; 
+		padding-right: 5px; 
+		white-space: nowrap;
+	}
+	
+	/*
+	Label the data
+	*/
+	td:nth-of-type(1):before { content: "STT"; }
+	td:nth-of-type(2):before { content: "MHK"; }
+	td:nth-of-type(3):before { content: "Học Kỳ"; }
+    td:nth-of-type(4):before { content: "TGBD"; }
+    td:nth-of-type(5):before { content: "TGKT"; }
+    td:nth-of-type(6):before { content: "Chức Năng"; }
+}
+    body tr td p{
+        font-size: 1rem;
+    }
+</style>
+
+<div class="container-fluid">
+    <h3 class="text-center">DANH SÁCH HỌC KỲ</h3>
+    <div class="row">
+        <div class="col-6 row">
+            <label for="myInput" class="col-sm-2 col-form-label">Tìm Kiếm</label>
+            <div class="col-10">
+                <input type="text" class="form-control" id="myInput">
+            </div>
+        </div>
+        <div class="col-6 text-right">
+            <a href="#" class="rounded rounded-circle btn btn-success text-light pl-lg-2 pr-lg-2 pt-1 pb-1"
+                data-toggle="modal" data-target="#add"><i class="fas fa-plus"></i>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 text-center mr-auto ml-auto mt-5">
+            <button name="export" class="btn btn-primary">Download Export Excel</button>
+        </div>
+    </div>
+    <table class="table table-striped table-bordered table-condensed mt-5" id="myTable">
+        <thead>
+            <tr align="center">
+                <th>STT</th>
+                <th>Mã Học Kỳ</th>
+                <th>Học Kỳ</th>
+                <th>Thời Gian Bắt Đầu</th>
+                <th>Thời Gian Kết Thúc</th>
+                <th>Chức Năng</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% term.forEach(function(term,index) { %>
+            <tr align="center" id="<%- term.idhk %>">
+                <% var date = new Date(term.bat_daunh)
+                var bat_dau = ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())) + '/' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + date.getFullYear();
+                var bd =  date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' +((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()));
+                %>
+                <% var date = new Date(term.ket_thucnh)
+                var ket_thuc = ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())) + '/' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + date.getFullYear();
+                var kt =  date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' +((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()));
+                %>
+                <td><p><%- index+1 %></p></td>
+                <td><p><%= term.ma_hoc_ky %></p></td>
+                <td><p><a href="javascript:void(0);"><%- term.hoc_ky %></a></p></td>
+                <td><p><%- bat_dau %></p></td>
+                <td><p><%- ket_thuc %></p></td>
+                <td><p>
+                    <a href="javascript:void(0);" data-toggle="modal" data-target="#exampleModal<%- term.idhk %>"
+                        class="btn btn-warning text-light">
+                        Sửa
+                    </a>
+
+                    <a class="btn btn-danger text-light" data-toggle="modal"
+                        data-target="#Modal<%- term.idhk %>">Xóa</a>
+                </p></td>
+            </tr>
+            <div class="modal fade" id="Modal<%- term.idhk %>" tabindex="-1" role="dialog"
+                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Xóa Môn Học</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            Xóa Môn Học<%- term.ten_mon_hoc %>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                            <button type="button" name="delete" data-dismiss="modal" value="<%- term.idhk %>"
+                                class="btn btn-primary">Xóa</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="exampleModal<%- term.idhk %>" tabindex="-1" role="dialog"
+                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Chỉnh Sửa Năm Học</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <form class="p-2" action="/admin/term/update" method="POST">
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Mã Học Kỳ</label>
+                                    <input type="text" class="form-control" name="ma_hoc_ky"
+                                        value="<%= term.ma_hoc_ky %>" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Học Kỳ</label>
+                                    <input type="text" class="form-control" name="hoc_ky"
+                                        value="<%- term.hoc_ky %>" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Ngày Bắt Đầu</label>
+                                    <input type="date" class="form-control" name="bat_daunh" value="<%- bd %>" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Ngày Kết Thúc</label>
+                                    <input type="date" class="form-control" name="ket_thucnh" value="<%- kt %>" />
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" value="<%- term.idhk %>" class="btn btn-success w-25"
+                                    name="idhk">Lưu</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <% }); %>
+        </tbody>
+    </table>
+</div>
+<div class="modal fade" id="add" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Thêm Học Kỳ</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form class="p-2" method="post" action="/admin/term/add">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="font-weight-bold">Mã Học Kỳ</label>
+                        <input type="text" class="form-control" name="ma_hoc_ky" value="" />
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold">Học Kỳ</label>
+                        <input type="text" class="form-control" name="hoc_ky" value="" />
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold">Ngày Bắt Đầu</label>
+                        <input type="date" class="form-control" name="bat_daunh"  />
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold">Ngày Kết Thúc</label>
+                        <input type="date" class="form-control" name="ket_thucnh" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success w-25">Thêm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

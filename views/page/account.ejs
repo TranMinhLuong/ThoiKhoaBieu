@@ -1,0 +1,129 @@
+<script>
+    $(document).ready(function () {
+        $("#my-select").change(function(){
+            var vai_tro = $(this).val().toLowerCase();
+            $("#myTable tbody tr").filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(vai_tro) > -1)
+            });
+        })
+        $("#myInput").on("keyup", function () {
+            var search = $(this).val().toLowerCase();
+            $("#myTable tbody tr").filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(search) > -1)
+            });
+        })
+        $("button[name='export']").click(function(){
+            var table = $(this).prev('#myTable');
+            var preserveColors = (table.hasClass('table2excel_with_colors') ? true : false);
+            $("#myTable").table2excel({
+                exclude: "noExl",
+                name: "abc",
+                filename: "DS Tài Khoản",
+                exclude_img: true,
+				exclude_links: true,
+			    exclude_inputs: true,
+				preserveColors: preserveColors
+            });
+        });
+    });
+</script>
+<style>
+ @media only screen and (max-width: 760px),
+(min-device-width: 768px) and (max-device-width: 1024px)  {
+
+	/* Force table to not be like tables anymore */
+	table, thead, tbody, th, td, tr { 
+		display: block; 
+	}
+	
+	/* Hide table headers (but not display: none;, for accessibility) */
+	thead tr { 
+		position: absolute;
+		top: -9999px;
+		left: -9999px;
+	}
+	
+	tr { border: 1px solid #ccc; }
+	
+	td { 
+		/* Behave  like a "row" */
+		position: relative;
+        text-align: justify;
+	}
+
+    p {
+        text-align: end;
+    }
+	
+	td:before { 
+		/* Now like a table header */
+		position: absolute;
+		/* Top/left values mimic padding */
+		top: 13px;
+		left: 6px;
+		width: 15%; 
+		padding-right: 5px; 
+		white-space: nowrap;
+	}
+	
+	/*
+	Label the data
+	*/
+	td:nth-of-type(1):before { content: "STT"; }
+	td:nth-of-type(2):before { content: "Tài Khoản"; }
+	td:nth-of-type(3):before { content: "Mật Khẩu"; }
+    td:nth-of-type(4):before { content: "Vai Trò"; }
+}
+    body tr td p{
+        font-size: 1rem;
+    }
+</style>
+
+<div class="container-fluid">
+    <h3 class="text-center">DANH SÁCH TÀI KHOẢN</h3>
+    <div class="row form-group mb-4">
+        <div class="col-5">
+            <select id="my-select" class="form-control">
+               <option value="Giáo Viên">Giáo Viên</option>
+               <option value="Sinh Viên">Sinh Viên</option>
+            </select>
+        </div>
+        <div class="col-7 row">
+            <label for="myInput" class="col-2 col-form-label">Tìm Kiếm</label>
+            <div class="col-9">
+                <input type="text" class="form-control" id="myInput">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 text-center mr-auto ml-auto mt-5">
+            <button name="export" class="btn btn-primary">Download Export Excel</button>
+        </div>
+    </div>
+    <table class="table table-striped table-bordered table-condensed mt-5" id="myTable">
+        <thead>
+            <tr align="center">
+                <th>STT</th>
+                <th>Tên Tài Khoản</th>
+                <th>Password</th>
+                <th>Vai Trò</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% accounts.forEach(function(account,index) { %>
+            <tr align="center" id="<%- account.id %>">
+                <td><p><%- index+1 %> </p></td>
+                <td><p><%- account.ten_tai_khoan %> </p></td>
+                <td><p><%- account.mat_khau %> </p></td>
+                <td><p>
+                <% if (account.vai_tro == 1) { %>
+                    <%= "Sinh viên" %>
+                <% } else { %>
+                    <%= "Giáo viên" %>
+                <% } %>
+                 </p></td>
+            </tr>
+            <% }); %>
+        </tbody>
+    </table>
+</div>

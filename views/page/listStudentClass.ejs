@@ -1,0 +1,127 @@
+<script>
+    $(document).ready(function () {
+        $("#myInput").on("keyup", function () {
+            var search = $(this).val().toLowerCase();
+            $("#myTable tbody tr").filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(search) > -1)
+            });
+        })
+        $("input[name='path']").val(window.location.href);
+    });
+</script>
+<div class="container-fluid">
+    <h3 class="text-center">DANH SÁCH SINH VIÊN LỚP <%= ten_lop %></h3>
+    <div class="row">
+        <div class="col-6 row">
+            <label for="myInput" class="col-sm-2 col-form-label">Tìm Kiếm</label>
+            <div class="col-10">
+                <input type="text" class="form-control" id="myInput">
+            </div>
+        </div>
+    </div>
+    <table class="table table-striped table-bordered table-condensed mt-5" id="myTable">
+        <thead>
+            <tr align="center">
+                <th>STT</th>
+                <th>Mã Sinh Viên</th>
+                <th>Họ & Tên</th>
+                <th>Giới Tính</th>
+                <th>Ngày Sinh</th>
+                <th>Email</th>
+                <th>SĐT</th>
+                <th>Địa Chỉ</th>
+                <th>Chức Năng</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% students.forEach(function(student,index) { %>
+            <tr align="center" id="<%- student.id %>">
+                <% var date = new Date(student.ngay_sinh)
+                var ngay_sinh = ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())) + '/' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + date.getFullYear();
+                var sn =  date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' +((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()));
+                %>
+                <td><%- index+1 %></td>
+                <td><%- student.msv %></td>
+                <td><%- student.ten %></td>
+                <td><%- student.gioi_tinh %></td>
+                <td><%= ngay_sinh %></td>
+                <td><%- student.email %></td>
+                <td><%- student.sdt %></td>
+                <td><%- student.dia_chi %></td>
+                <td width="140px">
+                    <a href="javascript:void(0);" data-toggle="modal" data-target="#exampleModal<%- student.id %>"
+                        class="btn btn-warning text-light">
+                        Sửa
+                    </a>
+                </td>
+            </tr>
+            <div class="modal fade" id="exampleModal<%- student.id %>" tabindex="-1" role="dialog"
+                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Chỉnh Sửa Thông Tin Sinh Viên</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <form class="p-2" action="/admin/student/update" method="POST">
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Mã Sinh Viên</label>
+                                    <input type="text" class="form-control" name="msv" value="<%- student.msv %>" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Họ & Tên</label>
+                                    <input type="text" class="form-control" name="ten" value="<%- student.ten %>" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Giới Tính</label>
+                                    <input type="text" class="form-control" name="gt"
+                                        value="<%- student.gioi_tinh %>" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Ngày Sinh</label>
+                                    <input type="date" class="form-control" name="ngay_sinh" value="<%- sn %>" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">LỚP</label>
+                                    <select class="form-control" name="ma_lop">
+                                        <% classes.forEach(function(lop) { %>
+                                        <option value="<%= lop.id %>" <% if (lop.id == student.ma_lop) { %>
+                                            selected="selected" <% } %>>
+                                            <%= lop.ten_lop %>
+                                        </option>
+                                        <% }); %>
+                                        </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Email</label>
+                                    <input type="email" class="form-control" name="email"
+                                        value="<%- student.email %>" />
+                                    <input type="hidden" name="email_old"
+                                        value="<%- student.email %>" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Số Điện Thoại</label>
+                                    <input type="text" class="form-control" name="sdt" value="<%- student.sdt %>" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Địa Chỉ</label>
+                                    <input type="text" class="form-control" name="dia_chi"
+                                        value="<%- student.dia_chi %>" />
+                                    <input type="hidden" name="path" />
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" value="<%- student.id %>" class="btn btn-success w-25"
+                                    name="edit">Lưu</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <% }); %>
+        </tbody>
+    </table>
+</div>
