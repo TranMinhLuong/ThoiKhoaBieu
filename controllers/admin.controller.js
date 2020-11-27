@@ -76,20 +76,21 @@ module.exports = {
         var sql
         console.log(form, to, lop)
         if (typeof(lop) !== 'undefined' && typeof(to) == 'undefined' && typeof(form) == 'undefined') {
-            sql = "SELECT * FROM `giao_vien` AS gv,`lich_hoc` as lh, `lop_hoc_phan` as lhp,`phong_hoc`,`lop` ,`mon_hoc`" +
+            sql = "SELECT * FROM `giao_vien` AS gv,`lich_hoc` as lh, `lop_hoc_phan` as lhp,`phong_hoc`,`lop` ,`mon_hoc`, `nam_hoc`" +
                 " where mon_hoc.ma_mon_hoc = lhp.ma_mon_hoc AND phong_hoc.ma_phong=lh.ma_phong AND lh.`ma_lop_hp` = lhp.`ma_lop_hp`" +
-                " AND lh.mgv = gv.mgv AND lh.ma_lop = lop.id AND lh.`ma_lop` = " + lop
+                " AND lh.mgv = gv.mgv AND mon_hoc.ma_hoc_ky = nam_hoc.ma_hoc_ky AND  lh.ma_lop = lop.id AND lh.`ma_lop` = " + lop
         } else {
-            sql = "SELECT * FROM `giao_vien` AS gv,`lich_hoc` as lh, `lop_hoc_phan` as lhp,`phong_hoc`,`lop`" +
+            sql = "SELECT * FROM `giao_vien` AS gv,`lich_hoc` as lh, `lop_hoc_phan` as lhp,`phong_hoc`,`lop`, nam_hoc" +
                 " ,`mon_hoc` where mon_hoc.ma_mon_hoc = lhp.ma_mon_hoc AND phong_hoc.ma_phong=lh.ma_phong AND lh.`ma_lop_hp` = lhp.`ma_lop_hp`" +
-                " AND lh.mgv = gv.mgv AND lh.ma_lop = lop.id " +
+                " AND lh.mgv = gv.mgv AND mon_hoc.ma_hoc_ky = nam_hoc.ma_hoc_ky AND  lh.ma_lop = lop.id " +
                 " AND lh.tuan_thu = '"+ to +"' AND mon_hoc.ma_hoc_ky = '"+form+"' AND lh.`ma_lop` = " + lop
         }
         connection.query(sql, (err, rows) => {
             var myRRow = rows.map(a => {
-                const now = new Date();
+                const now = new Date(a.bat_daunh);
                 const i = dates.indexOf(a.thoi_gian);
-                now.setDate(now.getDate() - now.getDay() + i + 1);
+                const w = a.tuan_thu;
+                now.setDate(now.getDate() - now.getDay() + i + 1 + w*7);
                 var ngay = (Number(now.getDate()) <= 9) ? "0" + now.getDate() : now.getDate();
                 var thang = (Number(now.getMonth() + 1) <= 9) ? "0" + now.getMonth() + 1 : now.getMonth() + 1;
                 a.tenGiCungDc = dateNames[i] + `<br> (${ngay}/${thang}/${now.getFullYear()})`;
@@ -559,8 +560,9 @@ module.exports = {
     calendar: (req, res) => {
         var search = req.body.search_tuan;
         var sql = "SELECT * FROM `giao_vien` AS gv,`lich_hoc` as lh," +
-            "`lop_hoc_phan` as lhp,`phong_hoc`,`lop` where phong_hoc.ma_phong=lh.ma_phong " +
-            "AND lh.`ma_lop_hp` = lhp.`ma_lop_hp` AND lh.mgv = gv.mgv AND lh.ma_lop = lop.id ORDER BY lh.`thoi_gian`,lh.`tuan_thu` DESC;";
+            "`lop_hoc_phan` as lhp,`phong_hoc`,`lop`,`nam_hoc`,`mon_hoc` where mon_hoc.ma_mon_hoc = lhp.ma_mon_hoc"+
+            " AND phong_hoc.ma_phong=lh.ma_phong AND nam_hoc.`ma_hoc_ky`=mon_hoc.`ma_hoc_ky` " +
+            "AND lh.`ma_lop_hp` = lhp.`ma_lop_hp` AND lh.mgv = gv.mgv AND lh.ma_lop = lop.id ORDER BY lh.`tuan_thu`,lh.`thoi_gian` DESC;";
         connection.query(sql, (err, rows) => {
             var myRRow = rows.map(a => {
                 const now = new Date();
