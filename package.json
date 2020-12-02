@@ -20,5 +20,8 @@
         "mysql": "^2.18.1",
         "node-excel-export": "^1.4.4",
         "socket.io": "^2.3.0"
+    },
+    "devDependencies": {
+        "nodemon": "^2.0.6"
     }
 }

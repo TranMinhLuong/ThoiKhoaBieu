@@ -48,20 +48,21 @@ module.exports = {
         connection.query(sql, (err, lop) => {
             if (err) throw err;
             var sqlnh = "SELECT * FROM nam_hoc;"
-            connection.query(sqlnh, (err, nam_hoc)=>{
+            connection.query(sqlnh, (err, nam_hoc) => {
                 if (err) throw err;
-                var sqlw = "SELECT * FROM `mon_hoc` ORDER BY `tong_tuan` ASC;"
-                connection.query(sqlw, (err, week)=>{
+                var sqlw = "SELECT MAX(tong_tuan) AS tong_tuan FROM `mon_hoc`;"
+                connection.query(sqlw, (err, week) => {
                     if (err) throw err;
                     var sqld = "select * from nam_hoc where nam_hoc.hoc_ky in (select nam_hoc.hoc_ky from nam_hoc where nam_hoc.bat_daunh <= CURDATE() and nam_hoc.ket_thucnh >= CURDATE())";
-                    connection.query(sqld, (err, d)=>{
-                        if(err) throw err;
+                    connection.query(sqld, (err, d) => {
+                        if (err) throw err;
                         res.render('page/searchCalendar', {
                             title: "Tìm kiếm Lịch Học",
                             lop: lop,
                             term: nam_hoc,
                             toWeek: week[0].tong_tuan,
-                            date: d[0].bat_daunh
+                            date: d[0].bat_daunh,
+                            term: d,
                         })
                     })
                 })
@@ -78,22 +79,22 @@ module.exports = {
         if (typeof(lop) !== 'undefined' && typeof(to) == 'undefined' && typeof(form) == 'undefined') {
             sql = "SELECT * FROM `giao_vien` AS gv,`lich_hoc` as lh, `lop_hoc_phan` as lhp,`phong_hoc`,`lop` ,`mon_hoc`, `nam_hoc`" +
                 " where mon_hoc.ma_mon_hoc = lhp.ma_mon_hoc AND phong_hoc.ma_phong=lh.ma_phong AND lh.`ma_lop_hp` = lhp.`ma_lop_hp`" +
-                " AND lh.mgv = gv.mgv AND mon_hoc.ma_hoc_ky = nam_hoc.ma_hoc_ky AND  lh.ma_lop = lop.id AND lh.`ma_lop` = " + lop
+                " AND lh.mgv = gv.mgv AND mon_hoc.ma_hoc_ky = nam_hoc.ma_hoc_ky AND  lh.ma_lop = lop.id AND lh.`ma_lop` = " + lop 
         } else {
             sql = "SELECT * FROM `giao_vien` AS gv,`lich_hoc` as lh, `lop_hoc_phan` as lhp,`phong_hoc`,`lop`, nam_hoc" +
                 " ,`mon_hoc` where mon_hoc.ma_mon_hoc = lhp.ma_mon_hoc AND phong_hoc.ma_phong=lh.ma_phong AND lh.`ma_lop_hp` = lhp.`ma_lop_hp`" +
                 " AND lh.mgv = gv.mgv AND mon_hoc.ma_hoc_ky = nam_hoc.ma_hoc_ky AND  lh.ma_lop = lop.id " +
-                " AND lh.tuan_thu = '"+ to +"' AND mon_hoc.ma_hoc_ky = '"+form+"' AND lh.`ma_lop` = " + lop
+                " AND lh.tuan_thu = '" + to + "' AND mon_hoc.ma_hoc_ky = '" + form + "' AND lh.`ma_lop` = " + lop 
         }
         connection.query(sql, (err, rows) => {
             var myRRow = rows.map(a => {
                 const now = new Date(a.bat_daunh);
                 const i = dates.indexOf(a.thoi_gian);
                 const w = a.tuan_thu;
-                now.setDate(now.getDate() - now.getDay() + i + 1 + w*7);
+                now.setDate(now.getDate() - now.getDay() + i - 6 + w * 7);
                 var ngay = (Number(now.getDate()) <= 9) ? "0" + now.getDate() : now.getDate();
-                var thang = (Number(now.getMonth() + 1) <= 9) ? "0" + now.getMonth() + 1 : now.getMonth() + 1;
-                a.tenGiCungDc = dateNames[i] + `<br> (${ngay}/${thang}/${now.getFullYear()})`;
+                var thang = (Number(now.getMonth() + 1) <= 9) ? now.getMonth() + 1 : now.getMonth() + 1;
+                a.tenGiCungDc = dateNames[i] +`<br> (${ngay}/${thang}/${now.getFullYear()})`;
                 a.date = new Date(now);
                 return a;
             }).sort((a, b) => {
@@ -102,10 +103,10 @@ module.exports = {
             var sqlLop = "SELECT * FROM lop Where id =" + lop;
             connection.query(sqlLop, (err, cla) => {
                 if (err) throw err;
-                var sqlNh = "SELECT * FROM nam_hoc WHERE ma_hoc_ky = '"+form+"'";
+                var sqlNh = "SELECT * FROM nam_hoc WHERE ma_hoc_ky = '" + form + "'";
                 console.log(sqlNh);
-                connection.query(sqlNh, (err, nh)=>{
-                    if(err) throw err;
+                connection.query(sqlNh, (err, nh) => {
+                    if (err) throw err;
                     res.render('page/ct_LichHoc', {
                         title: "",
                         calender: myRRow,
@@ -120,10 +121,13 @@ module.exports = {
 
     calendarAjax: (req, res) => {
         var sql = "SELECT DISTINCT lich_hoc.*,lop_hoc_phan.ten_lop_hp,mon_hoc.so_tiet,giao_vien.ten,phong_hoc.ten_phong," +
-            "mon_hoc.ten_mon_hoc FROM `lich_hoc`,`lop_hoc_phan`, `giao_vien`," +
-            "`phong_hoc`,`mon_hoc` WHERE phong_hoc.ma_phong=lich_hoc.ma_phong " +
-            "AND lop_hoc_phan.ma_lop_hp=lich_hoc.ma_lop_hp AND giao_vien.mgv = lich_hoc.mgv AND mon_hoc.ma_mon_hoc=lop_hoc_phan.ma_mon_hoc " +
-            " AND lich_hoc.`ma_lop` = '" + req.params.lop + "' AND mon_hoc.bat_dau <= CURDATE() AND mon_hoc.ket_thuc >= CURDATE()  ORDER BY `lich_hoc`.`tiet_hoc` ASC";
+            "mon_hoc.ten_mon_hoc,nam_hoc.* FROM `lich_hoc`,`lop_hoc_phan`, `giao_vien`," +
+            "`phong_hoc`,`mon_hoc`,`nam_hoc` WHERE phong_hoc.ma_phong=lich_hoc.ma_phong " +
+            "AND lop_hoc_phan.ma_lop_hp=lich_hoc.ma_lop_hp AND giao_vien.mgv = lich_hoc.mgv" +
+            " AND mon_hoc.ma_mon_hoc=lop_hoc_phan.ma_mon_hoc AND mon_hoc.ma_hoc_ky = nam_hoc.ma_hoc_ky " +
+            " AND lich_hoc.`ma_lop` = '" + req.params.lop + "' AND DATE(NOW()) <= DATE_ADD(nam_hoc.bat_daunh, INTERVAL 7*lich_hoc.tuan_thu DAY)" +
+            " AND nam_hoc.bat_daunh <= CURDATE() AND nam_hoc.ket_thucnh >= CURDATE()  ORDER BY `lich_hoc`.`tiet_hoc` ASC";
+            console.log(sql)
         connection.query(sql, (err, rows) => {
             if (err) throw err;
             var list = [
@@ -167,6 +171,8 @@ module.exports = {
                 time.ten_lop_hp = lich_hoc.ten_lop_hp;
                 time.ten = lich_hoc.ten;
                 time.so_tiet = lich_hoc.so_tiet;
+                time.bat_daunh = lich_hoc.bat_daunh;
+                time.tuan_thu = lich_hoc.tuan_thu;
                 if (lich_hoc.buoi_hoc == "Sáng") {
                     list[i][0].push(time);
                 } else {
@@ -176,7 +182,6 @@ module.exports = {
             var sql = "SELECT * FROM lop Where id =" + req.params.lop;
             connection.query(sql, (err, lop) => {
                 if (err) throw err;
-                console.log(lop)
                 res.render('page/calendarAjax', {
                     title: "",
                     lop: lop[0],
@@ -460,7 +465,7 @@ module.exports = {
 
     insert_subject: (req, res) => {
         var sql_account = "INSERT INTO `mon_hoc`(`ma_mon_hoc`, `ten_mon_hoc`, `bat_dau`, `ket_thuc`, `tong_tuan`, `so_tiet`, `ma_hoc_ky`) VALUES (?,?,?,?,?,?,?)";
-        
+
         var Subject = [
             req.body.ma_mon_hoc,
             req.body.ten_mon_hoc,
@@ -560,16 +565,17 @@ module.exports = {
     calendar: (req, res) => {
         var search = req.body.search_tuan;
         var sql = "SELECT * FROM `giao_vien` AS gv,`lich_hoc` as lh," +
-            "`lop_hoc_phan` as lhp,`phong_hoc`,`lop`,`nam_hoc`,`mon_hoc` where mon_hoc.ma_mon_hoc = lhp.ma_mon_hoc"+
+            "`lop_hoc_phan` as lhp,`phong_hoc`,`lop`,`nam_hoc`,`mon_hoc` where mon_hoc.ma_mon_hoc = lhp.ma_mon_hoc" +
             " AND phong_hoc.ma_phong=lh.ma_phong AND nam_hoc.`ma_hoc_ky`=mon_hoc.`ma_hoc_ky` " +
             "AND lh.`ma_lop_hp` = lhp.`ma_lop_hp` AND lh.mgv = gv.mgv AND lh.ma_lop = lop.id ORDER BY lh.`tuan_thu`,lh.`thoi_gian` DESC;";
         connection.query(sql, (err, rows) => {
             var myRRow = rows.map(a => {
-                const now = new Date();
+                const now = new Date(a.bat_daunh);
                 const i = dates.indexOf(a.thoi_gian);
-                now.setDate(now.getDate() - now.getDay() + i + 1);
+                const w = a.tuan_thu;
+                now.setDate(now.getDate() - now.getDay() + i + 1 + w * 7);
                 var ngay = (Number(now.getDate()) <= 9) ? "0" + now.getDate() : now.getDate();
-                var thang = (Number(now.getMonth() + 1) <= 9) ? "0" + now.getMonth() + 1 : now.getMonth() + 1;
+                var thang = (Number(now.getMonth() + 1) <= 9) ? now.getMonth() + 1 : now.getMonth() + 1;
                 a.tenGiCungDc = dateNames[i] + `<br> (${ngay}/${thang}/${now.getFullYear()})`;
                 a.date = new Date(now);
                 return a;
@@ -595,7 +601,7 @@ module.exports = {
                     var sql = "SELECT * FROM `lop`";
                     connection.query(sql, (err, lop) => {
                         if (err) throw err;
-                            res.render('page/calendar', {
+                        res.render('page/calendar', {
                             title: 'Calendar',
                             user: res.locals.user,
                             calendars: myRRow,

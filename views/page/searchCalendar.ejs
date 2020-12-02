@@ -40,7 +40,7 @@ var b;
     now.setDate(now.getDate() - now.getDay() + 1 + i*7);
     var ngay = (Number(now.getDate()) <= 9) ? "0" + now.getDate() : now.getDate();
     var thang = (Number(now.getMonth() + 1) <= 9) ? now.getMonth() + 1 : now.getMonth() + 1;
-    var x = i +`(${ngay}/${thang}/${now.getFullYear()})`;
+    var x = i+1 +`(${ngay}/${thang}/${now.getFullYear()})`;
     return x;
   }
 %>
@@ -66,8 +66,8 @@ var b;
         <div class="form-group row col-4">
             <label class="col-4 mb-0 mt-1" for="exampleFormControlSelect1">Tuần</label>
             <select class="col-8 form-control " id="validationout" name="out" required>
-                <% for(var i = 1; i<= 15; i++) { %>
-                    <option value="<%= i %>">Tuần <%= dateWeek(i) %> </option>
+                <% for(var i = 0; i<= toWeek; i++) { %>
+                    <option value="<%= i+1 %>">Tuần <%= dateWeek(i) %> </option>
                 <% } %>
             </select>
         </div>    

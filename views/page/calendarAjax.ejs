@@ -9,6 +9,7 @@
     var thang = (Number(now.getMonth() + 1) <= 9) ? "0" + now.getMonth() + 1 : now.getMonth() + 1;
     var x = `<br> (${ngay}/${thang}/${now.getFullYear()})`;
     const date = (mangThu[i] != "CN") ? "Thứ "+ mangThu[i].substring(1)+x : "Chủ Nhật"+x;
+    
     return date;
   }
 
